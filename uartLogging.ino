@@ -34,7 +34,7 @@ void beginUartGnssLogging()
 // Store UART GNSS data - called from main loop
 void storeUartGnssData()
 {
-  if (!settings.useUartForGnssData)
+  if (!settings.useUartForGnssData || !settings.sensor_uBlox.log)
     return;
     
   // Read available bytes from UART and buffer them
@@ -71,7 +71,7 @@ void storeUartGnssData()
 // Flush any remaining UART GNSS data - called before sleep/powerdown/close
 void storeFinalUartGnssData()
 {
-  if (!settings.useUartForGnssData)
+  if (!settings.useUartForGnssData || !settings.sensor_uBlox.log)
     return;
     
   // Read and flush all remaining bytes from UART

@@ -194,6 +194,18 @@ bool detectQwiicDevices()
   return (somethingDetected);
 }
 
+// Helper function to check if UART GNSS logging is active
+bool isUartGnssLoggingActive()
+{
+  return (settings.useUartForGnssData && settings.sensor_uBlox.log);
+}
+
+// Helper function to check if I2C GNSS logging is active
+bool isI2cGnssLoggingActive()
+{
+  return (!settings.useUartForGnssData && settings.sensor_uBlox.log && qwiicAvailable.uBlox && qwiicOnline.uBlox);
+}
+
 //Close the current log file and open a new one
 //This should probably be defined in OpenLog_Artemis_GNSS_Logging as it involves files
 //but it is defined here as it is u-blox-specific
@@ -201,7 +213,7 @@ void openNewLogFile()
 {
   if (settings.logData && online.microSD && online.dataLogging) //If we are logging
   {
-    if (settings.useUartForGnssData && settings.sensor_uBlox.log)
+    if (isUartGnssLoggingActive())
     {
       // UART mode - just flush and rotate files
       unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
@@ -239,7 +251,7 @@ void openNewLogFile()
 
       updateDataFileCreate(&gnssDataFile); //Update the file create time stamp
     }
-    else if (!settings.useUartForGnssData && settings.sensor_uBlox.log && qwiicAvailable.uBlox && qwiicOnline.uBlox) //If the u-blox is available and logging
+    else if (isI2cGnssLoggingActive()) //If the u-blox is available and logging
     {
       //Disable all messages
       disableMessages(1100);
@@ -294,7 +306,7 @@ void closeLogFile()
 {
   if (settings.logData && online.microSD && online.dataLogging) //If we are logging
   {
-    if (settings.useUartForGnssData && settings.sensor_uBlox.log)
+    if (isUartGnssLoggingActive())
     {
       // UART mode - just flush and close
       unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
@@ -313,7 +325,7 @@ void closeLogFile()
 
       gnssDataFile.close();
     }
-    else if (!settings.useUartForGnssData && settings.sensor_uBlox.log && qwiicAvailable.uBlox && qwiicOnline.uBlox) //If the u-blox is available and logging
+    else if (isI2cGnssLoggingActive()) //If the u-blox is available and logging
     {
       //Disable all messages
       disableMessages(1100);
