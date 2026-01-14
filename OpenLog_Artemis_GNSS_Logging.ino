@@ -286,8 +286,15 @@ void setup() {
     }
   }
 
-  if (beginSensors() == true) Serial.println(F("GNSS online"));
-  else Serial.println(F("GNSS offline"));
+  if (settings.useUartForGnssData)
+  {
+    Serial.println(F("UART GNSS logging mode"));
+  }
+  else
+  {
+    if (beginSensors() == true) Serial.println(F("GNSS online"));
+    else Serial.println(F("GNSS offline"));
+  }
 
   //If we are sleeping between readings then we cannot rely on millis() as it is powered down. Used RTC instead.
   measurementStartTime = rtcMillis();
@@ -306,7 +313,11 @@ void loop() {
 
   if (Serial.available()) menuMain(); //Present user menu
 
-  storeData();
+  // Call appropriate data storage function based on GNSS data source
+  if (settings.useUartForGnssData)
+    storeUartGnssData();
+  else
+    storeData();
 
   if ((settings.useGPIO32ForStopLogging == true) && (stopLoggingSeen == true)) // Has the user pressed the stop logging button?
   {
@@ -478,6 +489,11 @@ void beginDataLogging()
   else
     online.dataLogging = false;
 
+  // Initialize UART GNSS logging if enabled
+  if (settings.useUartForGnssData)
+  {
+    beginUartGnssLogging();
+  }
 }
 
 void beginSerialOutput()
