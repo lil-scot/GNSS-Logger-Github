@@ -74,22 +74,26 @@ void storeFinalUartGnssData()
   if (!settings.useUartForGnssData)
     return;
     
-  // Read any remaining bytes from UART
-  while (Serial1.available() && (uartBufferHead < UART_BUFFER_SIZE))
+  // Read and flush all remaining bytes from UART
+  while (Serial1.available())
   {
-    uartBuffer[uartBufferHead++] = Serial1.read();
-  }
-  
-  // Write any remaining buffered data to SD card
-  if (uartBufferHead > 0)
-  {
-    digitalWrite(PIN_STAT_LED, HIGH);
-    if (settings.logData && online.microSD && online.dataLogging)
+    // Fill buffer
+    while (Serial1.available() && (uartBufferHead < UART_BUFFER_SIZE))
     {
-      gnssDataFile.write(uartBuffer, uartBufferHead);
+      uartBuffer[uartBufferHead++] = Serial1.read();
     }
-    digitalWrite(PIN_STAT_LED, LOW);
     
-    uartBufferHead = 0; // Reset buffer
+    // Write full or partial buffer to SD card
+    if (uartBufferHead > 0)
+    {
+      digitalWrite(PIN_STAT_LED, HIGH);
+      if (settings.logData && online.microSD && online.dataLogging)
+      {
+        gnssDataFile.write(uartBuffer, uartBufferHead);
+      }
+      digitalWrite(PIN_STAT_LED, LOW);
+      
+      uartBufferHead = 0; // Reset buffer
+    }
   }
 }

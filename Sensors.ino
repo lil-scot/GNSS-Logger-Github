@@ -343,6 +343,14 @@ void closeLogFile()
 //Close the current log file and then reset the GNSS
 void resetGNSS()
 {
+  // UART mode doesn't support GNSS reset via I2C
+  if (settings.useUartForGnssData)
+  {
+    Serial.println(F("GNSS reset is not supported in UART mode."));
+    Serial.println(F("Please reset the GNSS module manually if needed."));
+    return;
+  }
+
   if (settings.logData && settings.sensor_uBlox.log && online.microSD && online.dataLogging) //If we are logging
   {
     if (qwiicAvailable.uBlox && qwiicOnline.uBlox) //If the u-blox is available and logging
