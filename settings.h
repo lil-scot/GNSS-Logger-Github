@@ -12,6 +12,9 @@
 //Default u-blox I2C address
 #define ADR_UBLOX 0x42
 
+// Compile-time option to enable OLED display support
+//#define COMPILE_OLED_DISPLAY
+
 //u-blox settings
 struct struct_uBlox {
   bool log = true;
@@ -95,12 +98,21 @@ struct struct_settings {
   bool outputNMEA = false; // Output the sensor NMEA data on the TX pin
   int  serialTXBaudRate = 115200;
   struct_uBlox sensor_uBlox;
+  // UART NMEA logging settings
+  bool enableUartNmeaLogging = true; // Enable UART NMEA logging mode
+  int uartNmeaBaudRate = 230400; // Baud rate for UART NMEA input
+  int nextGnssLogNumber = 1; // Next available gnssLog file number
+  // IMU logging settings
+  bool enableImuLogging = true; // Enable IMU logging at 10Hz
+  int nextImuLogNumber = 1; // Next available imuLog file number
 } settings;
 
 //These are the devices on board OpenLog that may be on or offline.
 struct struct_online {
   bool microSD = false;
   bool dataLogging = false;
+  bool gnssLogging = false; // UART NMEA logging active
+  bool imuLogging = false; // IMU logging active
 } online;
 
 //These structs define supported sensors and if they are available and online(started).
