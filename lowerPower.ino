@@ -419,8 +419,22 @@ void wakeFromSleep()
   }
 
   beginDataLogging(); //180ms
-
-  disableIMU(); //Disable IMU
+  
+  // Restart UART NMEA logging if it was enabled
+  if (settings.enableUartNmeaLogging && online.gnssLogging)
+  {
+    beginUartNmeaLogging();
+  }
+  
+  // Restart IMU logging if it was enabled
+  if (settings.enableImuLogging && online.imuLogging)
+  {
+    beginImuLogging();
+  }
+  else
+  {
+    disableIMU(); //Disable IMU if not logging
+  }
 
   if (qwiicOnline.uBlox == false) //Check if we powered down the module
   {
