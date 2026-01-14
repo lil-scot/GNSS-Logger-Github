@@ -27,19 +27,19 @@ Configure your u-blox module to:
 ## Firmware Configuration
 
 ### Default Settings
-The firmware defaults to UART mode with these settings in `settings.h`:
+The firmware defaults to I2C mode for backward compatibility. To enable UART logging, modify these settings in `settings.h`:
 
 ```cpp
-bool useUartForGnssData = true;   // Enable UART logging
-int uartGnssBaudRate = 230400;     // Match your GNSS module's baud rate
+bool useUartForGnssData = false;  // Set to true to enable UART logging
+int uartGnssBaudRate = 230400;    // Match your GNSS module's baud rate
 ```
 
 ### Changing Settings
 You can modify these in `settings.h` before compiling:
 
-1. **Disable UART mode** (revert to I2C):
+1. **Enable UART mode** (switch from I2C to UART):
    ```cpp
-   bool useUartForGnssData = false;
+   bool useUartForGnssData = true;
    ```
 
 2. **Change baud rate**:
