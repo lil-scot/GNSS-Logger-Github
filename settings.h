@@ -94,6 +94,8 @@ struct struct_settings {
   bool outputUBX = false; // Output the sensor UBX data on the TX pin
   bool outputNMEA = false; // Output the sensor NMEA data on the TX pin
   int  serialTXBaudRate = 115200;
+  bool useUartForGnssData = false; // If true, log GNSS data from UART1 instead of I2C
+  int  uartGnssBaudRate = 230400; // Baud rate for UART GNSS logging
   struct_uBlox sensor_uBlox;
 } settings;
 
