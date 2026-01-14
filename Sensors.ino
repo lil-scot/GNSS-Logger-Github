@@ -201,7 +201,7 @@ void openNewLogFile()
 {
   if (settings.logData && online.microSD && online.dataLogging) //If we are logging
   {
-    if (settings.useUartForGnssData)
+    if (settings.useUartForGnssData && settings.sensor_uBlox.log)
     {
       // UART mode - just flush and rotate files
       unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
@@ -239,7 +239,7 @@ void openNewLogFile()
 
       updateDataFileCreate(&gnssDataFile); //Update the file create time stamp
     }
-    else if (settings.sensor_uBlox.log && qwiicAvailable.uBlox && qwiicOnline.uBlox) //If the u-blox is available and logging
+    else if (!settings.useUartForGnssData && settings.sensor_uBlox.log && qwiicAvailable.uBlox && qwiicOnline.uBlox) //If the u-blox is available and logging
     {
       //Disable all messages
       disableMessages(1100);
@@ -294,7 +294,7 @@ void closeLogFile()
 {
   if (settings.logData && online.microSD && online.dataLogging) //If we are logging
   {
-    if (settings.useUartForGnssData)
+    if (settings.useUartForGnssData && settings.sensor_uBlox.log)
     {
       // UART mode - just flush and close
       unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
@@ -313,7 +313,7 @@ void closeLogFile()
 
       gnssDataFile.close();
     }
-    else if (settings.sensor_uBlox.log && qwiicAvailable.uBlox && qwiicOnline.uBlox) //If the u-blox is available and logging
+    else if (!settings.useUartForGnssData && settings.sensor_uBlox.log && qwiicAvailable.uBlox && qwiicOnline.uBlox) //If the u-blox is available and logging
     {
       //Disable all messages
       disableMessages(1100);

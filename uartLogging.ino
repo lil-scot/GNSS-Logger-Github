@@ -75,7 +75,11 @@ void storeFinalUartGnssData()
     return;
     
   // Read and flush all remaining bytes from UART
-  while (Serial1.available())
+  // Use a maximum iteration count to prevent infinite loop if data keeps arriving
+  const int maxFlushIterations = 10;
+  int flushCount = 0;
+  
+  while (Serial1.available() && (flushCount < maxFlushIterations))
   {
     // Fill buffer
     while (Serial1.available() && (uartBufferHead < UART_BUFFER_SIZE))
@@ -94,6 +98,12 @@ void storeFinalUartGnssData()
       digitalWrite(PIN_STAT_LED, LOW);
       
       uartBufferHead = 0; // Reset buffer
+      flushCount++;
     }
+  }
+  
+  if (settings.printMinorDebugMessages && (flushCount >= maxFlushIterations))
+  {
+    Serial.println(F("storeFinalUartGnssData: reached max flush iterations"));
   }
 }
