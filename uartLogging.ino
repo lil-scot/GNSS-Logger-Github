@@ -57,7 +57,7 @@ void storeUartGnssData()
   }
   
   // Sync logged data and update the access timestamp periodically
-  if ((settings.frequentFileAccessTimestamps) && (millis() > (lastUartDataLogSyncTime + 1000)))
+  if ((settings.frequentFileAccessTimestamps) && ((millis() - lastUartDataLogSyncTime) > 1000))
   {
     if (settings.logData && online.microSD && online.dataLogging)
     {
@@ -77,12 +77,15 @@ void storeFinalUartGnssData()
   // Read and flush all remaining bytes from UART
   // Use a maximum iteration count to prevent infinite loop if data keeps arriving
   const int maxFlushIterations = 10;
+  const unsigned long maxFlushTimeMs = 1000; // Maximum 1 second total flush time
   int flushCount = 0;
+  unsigned long flushStartTime = millis();
   
-  while (Serial1.available() && (flushCount < maxFlushIterations))
+  while (Serial1.available() && (flushCount < maxFlushIterations) && ((millis() - flushStartTime) < maxFlushTimeMs))
   {
-    // Fill buffer
-    while (Serial1.available() && (uartBufferHead < UART_BUFFER_SIZE))
+    // Fill buffer with timeout protection
+    unsigned long bufferFillStart = millis();
+    while (Serial1.available() && (uartBufferHead < UART_BUFFER_SIZE) && ((millis() - bufferFillStart) < 100))
     {
       uartBuffer[uartBufferHead++] = Serial1.read();
     }
@@ -105,5 +108,9 @@ void storeFinalUartGnssData()
   if (settings.printMinorDebugMessages && (flushCount >= maxFlushIterations))
   {
     Serial.println(F("storeFinalUartGnssData: reached max flush iterations"));
+  }
+  if (settings.printMinorDebugMessages && ((millis() - flushStartTime) >= maxFlushTimeMs))
+  {
+    Serial.println(F("storeFinalUartGnssData: flush timeout"));
   }
 }
