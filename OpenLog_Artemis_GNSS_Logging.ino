@@ -265,13 +265,44 @@ void setup() {
 
   beginDataLogging(); //180ms
 
-  disableIMU(); //Disable IMU
+  // Initialize UART NMEA logging if enabled
+  if (settings.enableUartNmeaLogging)
+  {
+    beginUartNmeaLogging();
+  }
+  
+  // Initialize IMU logging if enabled
+  if (settings.enableImuLogging)
+  {
+    beginImuLogging();
+  }
+  else
+  {
+    disableIMU(); //Disable IMU if not logging
+  }
+  
+  // Initialize OLED display if enabled
+  beginOledDisplay();
 
   if (online.microSD == true) Serial.println("SD card online");
   else Serial.println("SD card offline");
 
   if (online.dataLogging == true) Serial.println("Data logging online");
   else Serial.println("Datalogging offline");
+  
+  if (online.gnssLogging == true) 
+  {
+    Serial.println(F(""));
+    Serial.println(F("========================================"));
+    Serial.println(F("  UART NMEA LOGGING MODE ENABLED"));
+    Serial.print(F("  UART1 RX on pin 13, baud: "));
+    Serial.println(settings.uartNmeaBaudRate);
+    Serial.println(F("  Logging with UTC timestamps"));
+    Serial.println(F("========================================"));
+    Serial.println(F(""));
+  }
+  
+  if (online.imuLogging == true) Serial.println(F("IMU logging online"));
 
   if (settings.enableTerminalOutput == false && settings.logData == true) Serial.println(F("Logging to microSD card with no terminal output"));
 
@@ -306,7 +337,22 @@ void loop() {
 
   if (Serial.available()) menuMain(); //Present user menu
 
-  storeData();
+  storeData(); // Store GNSS data from I2C
+  
+  // Store UART NMEA data if enabled
+  if (online.gnssLogging)
+  {
+    storeUartNmeaData();
+  }
+  
+  // Store IMU data at 10Hz if enabled
+  if (online.imuLogging)
+  {
+    storeImuData();
+  }
+  
+  // Update OLED display periodically
+  updateOledDisplay();
 
   if ((settings.useGPIO32ForStopLogging == true) && (stopLoggingSeen == true)) // Has the user pressed the stop logging button?
   {
@@ -316,7 +362,11 @@ void loop() {
   uint64_t timeNow = rtcMillis();
 
   // Is sleep enabled and is it time to go to sleep?
-  if ((settings.usSleepDuration > 0) && (timeNow > (measurementStartTime + (settings.usLoggingDuration / 1000ULL))))
+  // Skip sleep if UART NMEA or IMU logging is enabled (continuous operation mode)
+  if ((settings.usSleepDuration > 0) && 
+      !settings.enableUartNmeaLogging && 
+      !settings.enableImuLogging && 
+      (timeNow > (measurementStartTime + (settings.usLoggingDuration / 1000ULL))))
   {
     if (settings.printMajorDebugMessages == true)
     {

@@ -30,6 +30,19 @@ void checkBattery(void)
       
           gnssDataFile.close(); //No need to close files. https://forum.arduino.cc/index.php?topic=149504.msg1125098#msg1125098
         }
+        
+        //Flush and close UART NMEA logging
+        if (online.gnssLogging == true)
+        {
+          storeFinalUartNmeaData();
+          closeGnssLogFile();
+        }
+        
+        //Close IMU logging
+        if (online.imuLogging == true)
+        {
+          closeImuLogFile();
+        }
 
         delay(sdPowerDownDelay); // Give the SD card time to finish writing ***** THIS IS CRITICAL *****
 
@@ -179,6 +192,19 @@ void goToSleep()
     gnssDataFile.close(); //No need to close files. https://forum.arduino.cc/index.php?topic=149504.msg1125098#msg1125098
 
     delay(sdPowerDownDelay); // Give the SD card time to finish writing ***** THIS IS CRITICAL *****
+  }
+  
+  //Flush and close UART NMEA logging
+  if (online.gnssLogging == true)
+  {
+    storeFinalUartNmeaData();
+    closeGnssLogFile();
+  }
+  
+  //Close IMU logging
+  if (online.imuLogging == true)
+  {
+    closeImuLogFile();
   }
 
   uint32_t msToSleep = (uint32_t)(settings.usSleepDuration / 1000ULL);
@@ -393,8 +419,22 @@ void wakeFromSleep()
   }
 
   beginDataLogging(); //180ms
-
-  disableIMU(); //Disable IMU
+  
+  // Restart UART NMEA logging if it was enabled
+  if (settings.enableUartNmeaLogging && online.gnssLogging)
+  {
+    beginUartNmeaLogging();
+  }
+  
+  // Restart IMU logging if it was enabled
+  if (settings.enableImuLogging && online.imuLogging)
+  {
+    beginImuLogging();
+  }
+  else
+  {
+    disableIMU(); //Disable IMU if not logging
+  }
 
   if (qwiicOnline.uBlox == false) //Check if we powered down the module
   {
@@ -434,6 +474,19 @@ void stopLogging(void)
     updateDataFileAccess(&gnssDataFile); //Update the file access time stamp
 
     gnssDataFile.close(); //No need to close files. https://forum.arduino.cc/index.php?topic=149504.msg1125098#msg1125098
+  }
+  
+  //Flush and close UART NMEA logging
+  if (online.gnssLogging == true)
+  {
+    storeFinalUartNmeaData();
+    closeGnssLogFile();
+  }
+  
+  //Close IMU logging
+  if (online.imuLogging == true)
+  {
+    closeImuLogFile();
   }
 
   Serial.print("Logging is stopped. Please reset OpenLog Artemis and open a terminal at ");
