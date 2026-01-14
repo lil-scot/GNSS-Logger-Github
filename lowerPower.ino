@@ -20,10 +20,16 @@ void checkBattery(void)
           unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
           while (millis() < pauseUntil) //While we are pausing, keep writing data to SD
           {
-            storeData();
+            if (settings.useUartForGnssData)
+              storeUartGnssData();
+            else
+              storeData();
           }
 
-          storeFinalData();
+          if (settings.useUartForGnssData)
+            storeFinalUartGnssData();
+          else
+            storeFinalData();
           gnssDataFile.sync();
       
           updateDataFileAccess(&gnssDataFile); //Update the file access time stamp
@@ -168,10 +174,16 @@ void goToSleep()
     unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
     while (millis() < pauseUntil) //While we are pausing, keep writing data to SD
     {
-      storeData();
+      if (settings.useUartForGnssData)
+        storeUartGnssData();
+      else
+        storeData();
     }
 
-    storeFinalData();
+    if (settings.useUartForGnssData)
+      storeFinalUartGnssData();
+    else
+      storeFinalData();
     gnssDataFile.sync();
 
     updateDataFileAccess(&gnssDataFile); //Update the file access time stamp
@@ -425,10 +437,16 @@ void stopLogging(void)
     unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
     while (millis() < pauseUntil) //While we are pausing, keep writing data to SD
     {
-      storeData();
+      if (settings.useUartForGnssData)
+        storeUartGnssData();
+      else
+        storeData();
     }
 
-    storeFinalData();
+    if (settings.useUartForGnssData)
+      storeFinalUartGnssData();
+    else
+      storeFinalData();
     gnssDataFile.sync();
 
     updateDataFileAccess(&gnssDataFile); //Update the file access time stamp
