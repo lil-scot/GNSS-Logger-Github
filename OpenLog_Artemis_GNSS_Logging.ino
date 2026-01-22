@@ -199,6 +199,21 @@ bool ignorePowerLossInterrupt = true; // Ignore the power loss interrupt - when 
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+//Forward declarations
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+char* findNextAvailableLog(int &newFileNumber, const char *fileLeader, const char *extension = "ubx");
+void powerDown();
+void powerLEDOn();
+void loadSettings();
+void recordSettings();
+void checkBattery();
+bool beginSensors();
+void storeData();
+void menuMain();
+uint64_t rtcMillis();
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 //unsigned long startTime = 0;
 
 #define DUMP(varname) {Serial.printf("%s: %d\r\n", #varname, varname);}

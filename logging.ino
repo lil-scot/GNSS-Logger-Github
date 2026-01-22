@@ -1,7 +1,7 @@
 //Returns next available log file name
 //Checks the spots in EEPROM for the next available LOG# file name
 //Updates EEPROM and then appends to the new log file.
-char* findNextAvailableLog(int &newFileNumber, const char *fileLeader)
+char* findNextAvailableLog(int &newFileNumber, const char *fileLeader, const char *extension = "ubx")
 {
   SdFile newFile; //This will contain the file for SD writing
 
@@ -29,7 +29,7 @@ char* findNextAvailableLog(int &newFileNumber, const char *fileLeader)
       sprintf(newFileNumberStr, "0%d", newFileNumber);
     else
       sprintf(newFileNumberStr, "%d", newFileNumber);
-    sprintf(newFileName, "%s%s.ubx", fileLeader, newFileNumberStr); //Splice the new file number into this file name. Max no. is 99999.
+    sprintf(newFileName, "%s%s.%s", fileLeader, newFileNumberStr, extension); //Splice the new file number into this file name. Max no. is 99999.
 
 //    if (settings.printMinorDebugMessages == true)
 //    {
