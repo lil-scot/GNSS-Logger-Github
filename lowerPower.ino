@@ -20,10 +20,16 @@ void checkBattery(void)
           unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
           while (millis() < pauseUntil) //While we are pausing, keep writing data to SD
           {
-            storeData();
+            if (settings.useUartForGnssData == true)
+              storeUartGnssData();
+            else
+              storeData();
           }
 
-          storeFinalData();
+          if (settings.useUartForGnssData == true)
+            flushUartGnssBuffer(); // Flush any remaining UART data
+          else
+            storeFinalData();
           gnssDataFile.sync();
       
           updateDataFileAccess(&gnssDataFile); //Update the file access time stamp
@@ -168,10 +174,16 @@ void goToSleep()
     unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
     while (millis() < pauseUntil) //While we are pausing, keep writing data to SD
     {
-      storeData();
+      if (settings.useUartForGnssData == true)
+        storeUartGnssData();
+      else
+        storeData();
     }
 
-    storeFinalData();
+    if (settings.useUartForGnssData == true)
+      flushUartGnssBuffer(); // Flush any remaining UART data
+    else
+      storeFinalData();
     gnssDataFile.sync();
 
     updateDataFileAccess(&gnssDataFile); //Update the file access time stamp
@@ -396,7 +408,12 @@ void wakeFromSleep()
 
   disableIMU(); //Disable IMU
 
-  if (qwiicOnline.uBlox == false) //Check if we powered down the module
+  // Re-initialize GNSS based on mode (I2C or UART)
+  if (settings.useUartForGnssData == true)
+  {
+    beginUartGnssLogging(); // Re-initialize UART logging
+  }
+  else if (qwiicOnline.uBlox == false) //Check if we powered down the module
   {
     beginSensors(); //Restart the module from scratch
   }
@@ -425,10 +442,16 @@ void stopLogging(void)
     unsigned long pauseUntil = millis() + 550UL; //Wait > 500ms so we can be sure SD data is sync'd
     while (millis() < pauseUntil) //While we are pausing, keep writing data to SD
     {
-      storeData();
+      if (settings.useUartForGnssData == true)
+        storeUartGnssData();
+      else
+        storeData();
     }
 
-    storeFinalData();
+    if (settings.useUartForGnssData == true)
+      flushUartGnssBuffer(); // Flush any remaining UART data
+    else
+      storeFinalData();
     gnssDataFile.sync();
 
     updateDataFileAccess(&gnssDataFile); //Update the file access time stamp

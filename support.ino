@@ -39,7 +39,11 @@ void waitForInput()
   while (Serial.available() > 0) Serial.read(); //Clear buffer
   while (Serial.available() == 0)
   {
-    storeData();
+    // Service active logging source
+    if (settings.useUartForGnssData == true)
+      storeUartGnssData();
+    else
+      storeData();
   }
 }
 
@@ -81,7 +85,11 @@ uint8_t getByteChoice(int numberOfSeconds)
       return (STATUS_GETBYTE_TIMEOUT); //Timeout. No user input.
     }
 
-    storeData(); //Keep reading I2C data and writing it to SD
+    // Service active logging source
+    if (settings.useUartForGnssData == true)
+      storeUartGnssData();
+    else
+      storeData();
 
     checkBattery();
     delay(1);
@@ -131,7 +139,11 @@ int64_t getNumber(int numberOfSeconds)
         }
       }
 
-      storeData(); //Keep reading I2C data and writing it to SD
+      // Service active logging source
+      if (settings.useUartForGnssData == true)
+        storeUartGnssData();
+      else
+        storeData();
     }
 
     //See if we timed out waiting for a line ending

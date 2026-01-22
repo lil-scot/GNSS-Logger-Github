@@ -175,6 +175,8 @@ void recordSettingsToFile()
     settingsFile.println("outputUBX=" + (String)settings.outputUBX);
     settingsFile.println("outputNMEA=" + (String)settings.outputNMEA);
     settingsFile.println("serialTXBaudRate=" + (String)settings.serialTXBaudRate);
+    settingsFile.println("useUartForGnssData=" + (String)settings.useUartForGnssData);
+    settingsFile.println("uartGnssBaudRate=" + (String)settings.uartGnssBaudRate);
 
     settingsFile.print("GNSS:log="); settingsFile.println(settings.sensor_uBlox.log);
     settingsFile.print("GNSS:powerManagement="); settingsFile.println(settings.sensor_uBlox.powerManagement);
@@ -410,6 +412,10 @@ bool parseLine(char* str) {
     settings.outputNMEA = d;
   else if (strcmp(settingName, "serialTXBaudRate") == 0)
     settings.serialTXBaudRate = d;
+  else if (strcmp(settingName, "useUartForGnssData") == 0)
+    settings.useUartForGnssData = d;
+  else if (strcmp(settingName, "uartGnssBaudRate") == 0)
+    settings.uartGnssBaudRate = d;
 
   else if (strcmp(settingName, "GNSS:log") == 0)
     settings.sensor_uBlox.log = d;
