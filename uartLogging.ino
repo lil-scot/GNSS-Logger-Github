@@ -41,14 +41,17 @@ void storeUartGnssData()
   // Read available data from Serial1
   while (Serial1.available() > 0)
   {
+    uint8_t incomingByte = Serial1.read();
     if (uartGnssBufferHead < UART_BUFFER_SIZE)
     {
-      uartGnssBuffer[uartGnssBufferHead++] = Serial1.read();
+      uartGnssBuffer[uartGnssBufferHead++] = incomingByte;
     }
     else
     {
-      // Buffer full, write it to SD
+      // Buffer full, flush it first
       flushUartGnssBuffer();
+      // Now store the byte we just read
+      uartGnssBuffer[uartGnssBufferHead++] = incomingByte;
     }
   }
   
