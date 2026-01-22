@@ -286,8 +286,17 @@ void setup() {
     }
   }
 
-  if (beginSensors() == true) Serial.println(F("GNSS online"));
-  else Serial.println(F("GNSS offline"));
+  // Initialize GNSS based on mode (I2C or UART)
+  if (settings.useUartForGnssData == true)
+  {
+    Serial.println(F("UART GNSS mode"));
+    beginUartGnssLogging(); // Initialize UART logging instead of I2C
+  }
+  else
+  {
+    if (beginSensors() == true) Serial.println(F("GNSS online"));
+    else Serial.println(F("GNSS offline"));
+  }
 
   //If we are sleeping between readings then we cannot rely on millis() as it is powered down. Used RTC instead.
   measurementStartTime = rtcMillis();
@@ -306,7 +315,11 @@ void loop() {
 
   if (Serial.available()) menuMain(); //Present user menu
 
-  storeData();
+  // Call appropriate data storage function based on mode
+  if (settings.useUartForGnssData == true)
+    storeUartGnssData();
+  else
+    storeData();
 
   if ((settings.useGPIO32ForStopLogging == true) && (stopLoggingSeen == true)) // Has the user pressed the stop logging button?
   {

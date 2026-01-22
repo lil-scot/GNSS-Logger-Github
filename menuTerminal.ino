@@ -78,6 +78,14 @@ void menuLogRate(bool *prevTerminalOutput)
     Serial.print(settings.serialTXBaudRate);
     Serial.println(F(" bps"));
 
+    Serial.print(F("14) Use UART for GNSS data (instead of I2C)               : "));
+    if (settings.useUartForGnssData == true) Serial.println(F("Enabled"));
+    else Serial.println(F("Disabled"));
+
+    Serial.print(F("15) UART GNSS baud rate (RX pin 13)                       : "));
+    Serial.print(settings.uartGnssBaudRate);
+    Serial.println(F(" bps"));
+
     Serial.println(F("x) Exit"));
 
     int incoming = getNumber(menuTimeout); //Timeout after x seconds
@@ -188,6 +196,25 @@ void menuLogRate(bool *prevTerminalOutput)
       else
       {
         settings.serialTXBaudRate = newBaud;
+        requestRestart = true;
+      }
+    }
+    else if (incoming == 14)
+    {
+      settings.useUartForGnssData ^= 1;
+      requestRestart = true;
+    }
+    else if (incoming == 15)
+    {
+      Serial.print(F("Enter UART GNSS baud rate (1200 to 921600): "));
+      int newBaud = getNumber(menuTimeout); //Timeout after x seconds
+      if (newBaud < 1200 || newBaud > 921600)
+      {
+        Serial.println(F("Error: baud rate out of range"));
+      }
+      else
+      {
+        settings.uartGnssBaudRate = newBaud;
         requestRestart = true;
       }
     }

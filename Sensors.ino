@@ -187,9 +187,46 @@ bool detectQwiicDevices()
 //but it is defined here as it is u-blox-specific
 void openNewLogFile()
 {
-  if (settings.logData && settings.sensor_uBlox.log && online.microSD && online.dataLogging) //If we are logging
+  if (settings.logData && online.microSD && online.dataLogging) //If we are logging
   {
-    if (qwiicAvailable.uBlox && qwiicOnline.uBlox) //If the u-blox is available and logging
+    if (settings.useUartForGnssData == true) //UART mode
+    {
+      unsigned long pauseUntil = millis() + 2100UL; //Wait > 500ms so we can be sure SD data is sync'd
+      while (millis() < pauseUntil) //While we are pausing, keep writing data to SD
+      {
+        storeUartGnssData();
+      }
+
+      //We've waited long enough for the last of the data to come in
+      //so now we can close the current file and open a new one
+      Serial.print(F("Closing: "));
+      Serial.println(gnssDataFileName);
+      flushUartGnssBuffer(); // Flush any remaining UART data
+      gnssDataFile.sync();
+
+      updateDataFileAccess(&gnssDataFile); //Update the file access time stamp
+
+      gnssDataFile.close(); //No need to close files. https://forum.arduino.cc/index.php?topic=149504.msg1125098#msg1125098
+
+      strcpy(gnssDataFileName, findNextAvailableLog(settings.nextDataLogNumber, "dataLog"));
+
+      // O_CREAT - create the file if it does not exist
+      // O_APPEND - seek to the end of the file prior to each write
+      // O_WRITE - open for write
+      if (gnssDataFile.open(gnssDataFileName, O_CREAT | O_APPEND | O_WRITE) == false)
+      {
+        if (settings.printMajorDebugMessages == true)
+        {
+          Serial.println(F("openNewLogFile: failed to create new sensor data file"));
+        }       
+        
+        online.dataLogging = false;
+        return;
+      }
+
+      updateDataFileCreate(&gnssDataFile); //Update the file create time stamp
+    }
+    else if (settings.sensor_uBlox.log && qwiicAvailable.uBlox && qwiicOnline.uBlox) //I2C mode
     {
       //Disable all messages
       disableMessages(1100);
@@ -242,9 +279,28 @@ void openNewLogFile()
 //but it is defined here as it is u-blox-specific
 void closeLogFile()
 {
-  if (settings.logData && settings.sensor_uBlox.log && online.microSD && online.dataLogging) //If we are logging
+  if (settings.logData && online.microSD && online.dataLogging) //If we are logging
   {
-    if (qwiicAvailable.uBlox && qwiicOnline.uBlox) //If the u-blox is available and logging
+    if (settings.useUartForGnssData == true) //UART mode
+    {
+      unsigned long pauseUntil = millis() + 2100UL; //Wait > 500ms so we can be sure SD data is sync'd
+      while (millis() < pauseUntil) //While we are pausing, keep writing data to SD
+      {
+        storeUartGnssData();
+      }
+
+      //We've waited long enough for the last of the data to come in
+      //so now we can close the current file and open a new one
+      Serial.print(F("Closing: "));
+      Serial.println(gnssDataFileName);
+      flushUartGnssBuffer(); // Flush any remaining UART data
+      gnssDataFile.sync();
+
+      updateDataFileAccess(&gnssDataFile); //Update the file access time stamp
+
+      gnssDataFile.close(); //No need to close files. https://forum.arduino.cc/index.php?topic=149504.msg1125098#msg1125098
+    }
+    else if (settings.sensor_uBlox.log && qwiicAvailable.uBlox && qwiicOnline.uBlox) //I2C mode
     {
       //Disable all messages
       disableMessages(1100);
