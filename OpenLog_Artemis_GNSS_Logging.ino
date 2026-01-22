@@ -199,6 +199,12 @@ bool ignorePowerLossInterrupt = true; // Ignore the power loss interrupt - when 
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+//Forward declarations
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+char* findNextAvailableLog(int &newFileNumber, const char *fileLeader, const char *extension = "ubx");
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 //unsigned long startTime = 0;
 
 #define DUMP(varname) {Serial.printf("%s: %d\r\n", #varname, varname);}
