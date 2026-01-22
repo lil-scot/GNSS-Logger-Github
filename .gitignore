@@ -1,0 +1,24 @@
+# Arduino build artifacts
+*.o
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+
+# Build directories
+build/
+*.build/
+
+# IDE files
+.vscode/
+.idea/
+
+# CodeQL files
+_codeql_detected_source_root
+
+# Temporary files
+*~
+*.swp
+*.swo
+.DS_Store
